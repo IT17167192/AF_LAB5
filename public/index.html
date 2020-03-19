@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LAB 5</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/popper.js/dist/popper.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+<body data-gr-c-s-loaded="true" cz-shortcut-listen="true">
+    <header>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">LAB 5 ANSWER</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="http://localhost:3000">Add User<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:3000/allUsers.html">All users</a>
+                    </li>
+                </ul>
+
+            </div>
+        </nav>
+    </header>
+    <main class="mt-4 mb-5">
+        <div class="jumbotron text-center mt-4">
+            <h1>User Management</h1>
+            <p>Add new user</p>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 col-lg-6 col-xl-6 col-sm-6 offset-lg-3 offset-sm-3 offset-xl-3 offset-md-3">
+                    <div id="alertContent">
+
+                    </div>
+                    <div class="card">
+                        <div class="card-header alert-primary">Add User</div>
+                        <div class="card-body">
+                            <form id="form">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" class="form-control" id="firstName" placeholder="Enter first name" name="firstName">
+                                </div>
+                                <div class="form-group">
+                                    <label for="secondName">Second Name:</label>
+                                    <input type="text" class="form-control" id="secondName" placeholder="Enter second name" name="secondName">
+                                </div>
+                                <div class="form-group">
+                                    <label for="birthday">Date of birth:</label>
+                                    <input type="date" class="form-control" id="birthday" name="birthday">
+                                </div>
+                                <button class="btn btn-outline-primary">Submit</button>
+                            </form>
+                        </div>
+                        <div class="card-footer alert-primary">
+                            LAB 5
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="api_core/api.js"></script>
+
+    <script>
+        const form = document.getElementById('form');
+        form.onsubmit = submit;
+
+        function submit(event) {
+            // For this example, don't actually submit the form
+            event.preventDefault();
+            const user = {};
+            user.firstName = document.getElementById('firstName').value;
+            user.secondName = document.getElementById('secondName').value;
+            user.birthday = document.getElementById('birthday').value;
+            addUser(user)
+            .then(data => {
+                if(data){
+                    console.log(data);
+                    $('#firstName').val('');
+                    $('#birthday').val('');
+                    $('#secondName').val('');
+                    const alert = "<div class=\"alert alert-warning alert-dismissible fade show\" aria-hidden=\"true\" role=\"alert\">\n" +
+                    "                    <strong>New user</strong> successfully added!.\n" +
+                        "                <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">\n" +
+                        "                   <span aria-hidden=\"true\">&times;</span>\n" +
+                        "                </button>\n" +
+                        "           </div>";
+
+                    $("#alertContent").html(alert);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

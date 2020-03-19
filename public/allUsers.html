@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LAB 5</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/popper.js/dist/popper.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+<body data-gr-c-s-loaded="true" cz-shortcut-listen="true" onload="appendTable()">
+<header>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">LAB 5 ANSWER</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="http://localhost:3000">Add User</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="http://localhost:3000/allUsers.html">All users<span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+</header>
+<main class="mt-4 mb-5">
+    <div class="jumbotron text-center mt-4">
+        <h1>User Management</h1>
+        <p>All users</p>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Modal -->
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Confirm</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure want to delete this data?
+                        <input type="hidden" id="cModalUserId">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-outline-success" onclick="deleteUserById()">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Update-->
+        <div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateUserModalLabel"><span id="label">Update User</span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-header alert-primary" id="modalTitle">Update User</div>
+                            <div class="card-body">
+                                <form id="form">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" placeholder="Enter first name" name="firstName">
+                                        <input type="hidden" id="userId">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="secondName">Second Name:</label>
+                                        <input type="text" class="form-control" id="secondName" placeholder="Enter second name" name="secondName">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="birthday">Date of birth:</label>
+                                        <input type="date" class="form-control" id="birthday" name="birthday">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-footer alert-primary">
+                                LAB 5
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveBtn" onclick="updateUserById()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+                <div id="alertMessages">
+
+                </div>
+                <div class="card">
+                    <div class="card-header alert-primary">All users</div>
+                    <div class="card-body">
+                        <table class="table table-responsive-sm table-responsive-md" id="userTable">
+                            <thead>
+                            <tr>
+                                <th scope="col">Unique Id</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Second Name</th>
+                                <th scope="col">Birthday</th>
+                                <th scope="col" class="text-center" colspan="3">Option</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tblUserContent">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer alert-primary">
+                        LAB 5
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script src="api_core/api.js"></script>
+<script>
+
+    const appendTable = () => {
+        var table = document.getElementById("userTable");
+        getAllUsers().then(data => {
+            if (data.error) {
+                setErrorCat(data.error);
+                console.error(errorCat);
+            } else {
+
+                let tableContent = '';
+                $('#tblUserContent').html(tableContent);
+
+                data.forEach(row => {
+                    const updateBtn = "<button onclick='getUpdateUser(\""+row._id+"\")' class=\"btn btn-outline-warning offset-2\">Update</button>";
+                    const viewBtn = "<button onclick='getUserFromId(\""+row._id+"\")' class=\"btn btn-outline-info offset-2 \">View</button>";
+                    const deleteBtn = "<button onclick='showConfirmation(\""+row._id+"\")' class=\"btn btn-outline-danger offset-2 \">Delete</button>";
+
+                    const dateObj = new Date(row.birthday);
+
+                    let month = dateObj.getUTCMonth() + 1;
+                    if(parseInt(month) < 10){
+                        month = "0" + month;
+                    }
+                    const day = dateObj.getUTCDate();
+                    const year = dateObj.getUTCFullYear();
+                    const date = year + "/" + month + "/" + day;
+
+                    tableContent += '<tr id="' + row._id +'">'
+                        + '<input type="hidden" id="userId" value="' + row._id + '"/>'
+                        + '<td>' + row.uniqueId + '</td>'
+                        + '<td>' + row.firstName + '</td>'
+                        + '<td>' + row.secondName + '</td>'
+                        + '<td>' + date + '</td>'
+                        + '<td>' + updateBtn + '</td>'
+                        + '<td>' + viewBtn + '</td>'
+                        + '<td>' + deleteBtn + '</td>'
+                        + '</tr>';
+                });
+
+                $('#tblUserContent').html(tableContent);
+            }
+        })
+
+    };
+
+    const getUpdateUser = (userId) => {
+        $('#saveBtn').show();
+        getUserById(userId)
+            .then(data => {
+                if(data.err){
+                    console.error(err);
+                }else{
+                    $('#updateUserModalLabel').html("Update User");
+                    $('#modalTitle').html("Update User");
+                    loadModal(data);
+                }
+            })
+    };
+
+    const getUserFromId = (userId) => {
+        getUserById(userId)
+        .then(data => {
+            if(data.err){
+                console.error(err);
+            }else{
+                $('#modalTitle').html("View User");
+                $('#updateUserModalLabel').html("View User");
+                loadModal(data);
+                $('#saveBtn').hide();
+            }
+        })
+    };
+
+    const deleteUserById = () => {
+        const userId = $('#cModalUserId').val();
+        $('#confirmationModal').modal('hide');
+        deleteUser(userId)
+        .then(data => {
+            if(data){
+                appendTable();
+            }
+        })
+
+        appendTable();
+        const alert = "<div class=\"alert alert-warning alert-dismissible fade show\" aria-hidden=\"true\" role=\"alert\">\n" +
+            "                    User <strong>deleted</strong> successfully!.\n" +
+            "                <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">\n" +
+            "                   <span aria-hidden=\"true\">&times;</span>\n" +
+            "                </button>\n" +
+            "           </div>";
+
+        $("#alertMessages").html(alert);
+    };
+
+    const showConfirmation = (userId) =>{
+        $('#confirmationModal').modal('show');
+        $('#cModalUserId').val(userId);
+    };
+
+    const loadModal = (data) => {
+        $('#updateUserModal').modal('show');
+        $('#firstName').val(data.firstName);
+        $('#secondName').val(data.secondName);
+        $('#userId').val(data._id);
+
+        const dateObj = new Date(data.birthday);
+
+        let month = dateObj.getUTCMonth() + 1;
+        if(parseInt(month) < 10){
+            month = "0" + month;
+        }
+
+        let day = dateObj.getUTCDate();
+        if(parseInt(day) < 10){
+            day = "0" + day;
+        }
+        const year = dateObj.getUTCFullYear();
+        const date = year + "-" + month + "-" + day;
+        $('#birthday').val(date);
+    };
+
+    const updateUserById = () => {
+        const user = {};
+        user.firstName = document.getElementById('firstName').value;
+        user.secondName = document.getElementById('secondName').value;
+        user.birthday = document.getElementById('birthday').value;
+
+        const userId = $('#userId').val();
+
+        updateUser(userId, user)
+        .then(data => {
+            if(data){
+                console.log(data);
+                $('#updateUserModal').modal('hide');
+                appendTable();
+                const alert = "<div class=\"alert alert-warning alert-dismissible fade show\" aria-hidden=\"true\" role=\"alert\">\n" +
+                    "                    User <strong>updated</strong> successfully!.\n" +
+                    "                <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">\n" +
+                    "                   <span aria-hidden=\"true\">&times;</span>\n" +
+                    "                </button>\n" +
+                    "           </div>";
+
+                $("#alertMessages").html(alert);
+            }
+        });
+    };
+
+</script>
+</body>
+</html>
